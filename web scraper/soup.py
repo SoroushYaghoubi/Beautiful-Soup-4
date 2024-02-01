@@ -14,13 +14,8 @@ soup = BeautifulSoup(html_content, 'lxml')
 Lawyers = []
 
 Profiles = soup.find_all('div', attrs={'data-vars-category': 'ProfileView'})
-n = 1
 for profile in Profiles:
     my_Lawyer = Lawyer()
-
-    # count the number of scrapes
-    print(n)
-    n += 1
 
     # scrape pages
     web_page = profile.find('a')
@@ -30,6 +25,13 @@ for profile in Profiles:
         my_Lawyer.web_page = "no page found"
 
     # scrape names
+    name = profile.find('strong', class_='name')
+    if name:
+        my_Lawyer.name = name.get_text()
+    else:
+        my_Lawyer.name = "no name found"
+
+    # scrape emails
     name = profile.find('strong', class_='name')
     if name:
         my_Lawyer.name = name.get_text()
@@ -49,12 +51,16 @@ for profile in Profiles:
         'div', class_='lawyer-detailed-info').find('div', class_="-lawyer-address")
 
     if detailed_info:
-        my_Lawyer.telefon = detailed_info.find('strong', class_="-phone")
-        my_Lawyer.addr = detailed_info.find('span', class_="-address")
+        my_Lawyer.telefon = detailed_info.find(
+            'strong', class_="-phone")
     else:
         my_Lawyer.telefon = "no detailed info found :("
 
     Lawyers.append(my_Lawyer)
 
+print("NUMBER OF LAWYERS FOUND: ")
+print(len(Lawyers))
 
-print(Lawyers[0])
+for lwy in Lawyers:
+    print(lwy)
+    print("######################")
