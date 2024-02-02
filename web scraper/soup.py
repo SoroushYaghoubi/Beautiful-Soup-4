@@ -1,21 +1,34 @@
 from bs4 import BeautifulSoup
 import requests
-from Lawyer import Lawyer
 
-# get page html code
-response = requests.get("https://www.justia.com/lawyers/probate/georgia")
-if response.status_code == 200:
-    html_content = response.text
-else:
-    html_content = "sorry nothing found :("
-    print("Failed to retrieve the webpage")
+page_num = "?page="
 
-# make soup
-soup = BeautifulSoup(html_content, 'lxml')
 
-# find lawyers
+def get_profiles(url) -> BeautifulSoup:
+    # get page html code
+    response = requests.get(url)
+    if response.status_code == 200:
+        html_content = response.text
+    else:
+        html_content = "sorry nothing found :("
+        print("Failed to retrieve the webpage")
 
-Profiles = soup.find_all('div', attrs={'data-vars-category': 'ProfileView'})
-for profile in Profiles:
-    if profile:
-        print(profile.get_text())
+    # make soup
+    soup = BeautifulSoup(html_content, 'lxml')
+
+    # find lawyers
+    Profiles = soup.find_all(
+        'div', attrs={'data-vars-category': 'ProfileView'})
+
+    return Profiles
+
+
+with open('lawyers.txt', 'w') as f:
+    for i in range(2, 5):
+        Profiles = get_profiles(
+            "https://www.justia.com/lawyers/probate/georgia" + "?page=" + str(i))
+
+        for prfl in Profiles:
+            f.write(prfl.get_text())
+
+        f.write("______________________________________________")
